@@ -28,7 +28,7 @@
       <form action="" id="location-form">
         <input type="text" id="location-input" class="form-control form-control-lg">
         <br>
-        <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        <button type="button" id="submitbtn" class="btn btn-primary btn-block">Submit</button>
       </form>
       <div class="card-block" id="formatted-address">
       </div>
@@ -42,12 +42,8 @@
     //San Francisco Default location
     var currentLat = 37.7749;
     var currentLng = -122.4194;
-
-
-    //get the location from form when user submits something on toolbar
-    var locate = document.getElementById('location-form');
-    locate.addEventListener('submit', geocode);
-
+    var geoLat;
+    var geoLng; 
 
     function handleLocationError(browserHasGeolocation, infoWindow, pos) {
       infoWindow.setPosition(pos);
@@ -60,6 +56,9 @@
     //map and markers
     function initMap(){
       //default location
+      var directionsService = new google.maps.DirectionsService;
+        //returns an efficient path
+      var directionsDisplay = new google.maps.DirectionsRenderer;
       var defaultLocation = {
         zoom: 11,
         center: {lat: 37.7749, lng: -122.4194}
@@ -68,7 +67,7 @@
       //map
       var map = new google.maps.Map(document.getElementById('map'), defaultLocation);
       var infoWindow =  new google.maps.InfoWindow;
-
+       directionsDisplay.setMap(map);
       //gets current location coordinates
       if (navigator.geolocation) {
 
@@ -94,12 +93,33 @@
         // Browser doesn't support Geolocation
         handleLocationError(false, infoWindow, map.getCenter());
       }
+       var onChangeHandler = function() {
+          geocode(directionsService, directionsDisplay);
+
+        };
+
+      var locate = document.getElementById('submitbtn');
+      locate.addEventListener('click', onChangeHandler);
 
     }
-
-    function geocode(e){
-      e.preventDefault();
-
+     function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+        console.log("LAT: " + geoLat);
+     
+        directionsService.route({
+          origin: {lat: currentLat, lng: currentLng},
+          destination: {lat: geoLat, lng: geoLng},
+          travelMode: 'DRIVING'
+        }, function(response, status) {
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+      }
+    function geocode(directionsService, directionsDisplay){
+      //e.preventDefault();
+ 
       var location = document.getElementById('location-input').value;
       axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
         params:{
@@ -110,31 +130,23 @@
       .then(function(response){
         console.log(response);
 
+        
+        //format address
+        var formAddress = response.data.results[0].formatted_address;
+        var formAddressOutput = `
+          <ul class="list-group">
+            <li class="list-group-item">${formAddress}</li>
+          </ul>
+        `;
+        
         //geometry determining lat long by search
-        var geoLat = response.data.results[0].geometry.location.lat;
-        var geoLng = response.data.results[0].geometry.location.lng;
-
-        //zoom out and coordinates
-        var destination = {
-          zoom: 12,
-          center: {lat: geoLat, lng: geoLng}
-        }
-
-        //map
-        var map = new google.maps.Map(document.getElementById('map'), destination);
-        //marker
-        var infoWindow =  new google.maps.InfoWindow;
-        infoWindow.setPosition({
-            lat: geoLat,
-            lng: geoLng
-          });
-        infoWindow.setContent('Destination');
-        infoWindow.open(map);
+        geoLat = response.data.results[0].geometry.location.lat;
+        geoLng = response.data.results[0].geometry.location.lng;
+        console.log("IM HERE");
+        calculateAndDisplayRoute(directionsService, directionsDisplay);
 
       })
-      .catch(function(error){
-        console.log(error);
-      });
+
     }
   </script>
   <!--Directions API-->
