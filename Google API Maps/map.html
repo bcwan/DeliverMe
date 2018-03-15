@@ -90,7 +90,7 @@
     }
 
     //==========================================================================
-    //get the location from form
+    //get the location from form when user submits something on toolbar
     var locate = document.getElementById('location-form');
     locate.addEventListener('submit', geocode);
 
@@ -130,13 +130,13 @@
         */
 
         //zoom out and coordinates
-        var otherLocation = {
+        var destination = {
           zoom: 12,
           center: {lat: geoLat, lng: geoLng}
         }
 
         //map
-        var map = new google.maps.Map(document.getElementById('map'), otherLocation);
+        var map = new google.maps.Map(document.getElementById('map'), destination);
         //marker
         var infoWindow =  new google.maps.InfoWindow;
         infoWindow.setPosition({
@@ -147,9 +147,9 @@
         infoWindow.open(map);
 
         //output
-        document.getElementById('formatted-address').innerHTML = formAddressOutput;
+        /*document.getElementById('formatted-address').innerHTML = formAddressOutput;*/
         //geoOutput
-        document.getElementById('geometry').innerHTML = geoOutput;
+        /*document.getElementById('geometry').innerHTML = geoOutput;*/
       })
       .catch(function(error){
         console.log(error);
