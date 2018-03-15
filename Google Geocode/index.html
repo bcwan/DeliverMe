@@ -1,0 +1,74 @@
+<!--https://github.com/axios/axios-->
+<!--Referenced video-->
+<!--https://www.youtube.com/watch?v=pRiQeo17u6c-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <title>Geolocation</title>
+</head>
+<body>
+  <div class="container">
+    <h2 id="text-center">Enter location: </h2>
+    <form action="" id="location-form">
+      <input type="text" id="location-input" class="form-control form-control-lg">
+      <br>
+      <button type="submit" class="btn btn-primary btn-block">Submit</button>
+    </form>
+    <div class="card-block" id="formatted-address">
+    </div>
+    <div class="card-block" id="geometry"></div>
+  </div>
+  <script>
+    //geocode();
+    //get the location from form
+    var locate = document.getElementById('location-form');
+    locate.addEventListener('submit', geocode);
+
+    function geocode(e){
+      e.preventDefault();
+
+      var location = document.getElementById('location-input').value;
+      axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+        params:{
+          address:location,
+          key:'AIzaSyB6vz8qr0YzLIR4jDNh3gLiVQsLEcHdMQA'
+        }
+      })
+      .then(function(response){
+        console.log(response);
+
+        //format address
+        var formAddress = response.data.results[0].formatted_address;
+        var formAddressOutput = `
+          <ul class="list-group">
+            <li class="list-group-item">${formAddress}</li>
+          </ul>
+        `;
+
+        //geometry lat long
+        var geoLat = response.data.results[0].geometry.location.lat;
+        var geoLng = response.data.results[0].geometry.location.lng;
+        var geoOutput = `
+          <ul class="list-group">
+            <li class="list-group-item">Lat: ${geoLat}</li>
+            <li class="list-group-item">Lng: ${geoLng}</li>
+          </ul>
+        `;
+
+        //output
+        document.getElementById('formatted-address').innerHTML = formAddressOutput;
+        //geoOutput
+        document.getElementById('geometry').innerHTML = geoOutput;
+      })
+      .catch(function(error){
+        console.log(error);
+      });
+    }
+  </script>
+</body>
+</html>
