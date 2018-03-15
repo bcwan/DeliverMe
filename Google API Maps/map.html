@@ -1,0 +1,226 @@
+<!--example code from: https://developers.google.com/maps/documentation/javascript/geolocation-->
+<!--https://developers.google.com/maps/documentation/javascript/examples/directions-simple-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <title>Google Maps</title>
+  <!--Map size-->
+  <style>
+    #map{
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>My Google Map</h1>
+    <div id="map">
+
+    </div>
+
+    <h2 id="text-center">Enter location: </h2>
+      <form action="" id="location-form">
+        <input type="text" id="location-input" class="form-control form-control-lg">
+        <br>
+        <button type="submit" class="btn btn-primary btn-block">Submit</button>
+      </form>
+      <div class="card-block" id="formatted-address">
+      </div>
+      <div class="card-block" id="geometry">
+      </div>
+  </div>
+
+  <script>
+    //from <!--example code from: https://developers.google.com/maps/documentation/javascript/geolocation-->
+
+    //San Francisco Default location
+    var currentLat = 37.7749;
+    var currentLng = -122.4194;
+    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+      infoWindow.setPosition(pos);
+      infoWindow.setContent(browserHasGeolocation ?
+                            'Error: The Geolocation service failed.' :
+                            'Error: Your browser doesn\'t support geolocation.');
+      infoWindow.open(map);
+    }
+
+    //map and markers
+    //==========================================================================
+    function initMap(){
+      //default location
+      var defaultLocation = {
+        zoom: 11,
+        center: {lat: 37.7749, lng: -122.4194}
+      }
+
+      //map
+      var map = new google.maps.Map(document.getElementById('map'), defaultLocation);
+      var infoWindow =  new google.maps.InfoWindow;
+      if (navigator.geolocation) {
+
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+          currentLat = position.coords.latitude;
+          currentLng = position.coords.longitude;
+
+          infoWindow.setPosition(pos);
+          infoWindow.setContent('Current Location.');
+          infoWindow.open(map);
+          map.setCenter(pos);
+
+        }, function() {
+
+          handleLocationError(true, infoWindow, map.getCenter());
+
+        });
+
+      } else {
+        // Browser doesn't support Geolocation
+        handleLocationError(false, infoWindow, map.getCenter());
+      }
+
+      //adds markers on click
+      // google.maps.event.addListener(map, 'click',
+      // function(event){
+      //   //add marker
+      //   addMarker({coords:event.latLng});
+      // });
+
+      //marker array
+      /*
+      var markers = [
+        {
+          coords:{lat: 37.7749, lng: -122.4194},
+          iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+          content: '<h1>My location<h1>'
+        },
+        {
+          coords:{lat: 37.8044, lng: -122.2711}
+        },
+        {
+          coords:{lat: 37.6879, lng: -122.4702}
+        }
+      ];
+
+      //adds markers
+      for(var i = 0; i < markers.length; i++){
+        addMarker(markers[i]);
+      }
+      
+
+      //add marker function
+      function addMarker(props){
+        //marker
+        console.log("Adding marker");
+        var marker = new google.maps.Marker({
+          position:props.coords,
+          map:map
+        });
+
+        if(props.iconImage){
+          //set icon images
+          marker.setIcon(props.iconImage);
+        }
+
+        if(props.content){
+          //info window
+          var infoWindow = new google.maps.InfoWindow({
+            content: props.content
+            }
+          )
+
+          marker.addListener('click', function(){
+            console.log("Goes to listener");
+            infoWindow.open(map, marker);
+          });
+        }
+      }
+      */
+
+    }
+
+    //==========================================================================
+    //geocode();
+    //get the location from form
+    var locate = document.getElementById('location-form');
+    locate.addEventListener('submit', geocode);
+
+    function geocode(e){
+      e.preventDefault();
+
+      var location = document.getElementById('location-input').value;
+      axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+        params:{
+          address:location,
+          key:'AIzaSyB6vz8qr0YzLIR4jDNh3gLiVQsLEcHdMQA'
+        }
+      })
+      .then(function(response){
+        console.log(response);
+
+        //format address
+        var formAddress = response.data.results[0].formatted_address;
+        var formAddressOutput = `
+          <ul class="list-group">
+            <li class="list-group-item">${formAddress}</li>
+          </ul>
+        `;
+
+        //geometry determining lat long by search
+        var geoLat = response.data.results[0].geometry.location.lat;
+        var geoLng = response.data.results[0].geometry.location.lng;
+        var geoOutput = `
+          <ul class="list-group">
+            <li class="list-group-item">Lat: ${geoLat}</li>
+            <li class="list-group-item">Lng: ${geoLng}</li>
+          </ul>
+        `;
+
+        //zoom out and coordinates
+        var otherLocation = {
+          zoom: 12,
+          center: {lat: geoLat, lng: geoLng}
+        }
+
+        //map
+        var map = new google.maps.Map(document.getElementById('map'), otherLocation);
+        //marker
+        var infoWindow =  new google.maps.InfoWindow;
+        infoWindow.setPosition({
+            lat: geoLat,
+            lng: geoLng
+          });
+        infoWindow.setContent('Destination');
+        infoWindow.open(map);
+
+        //output
+        document.getElementById('formatted-address').innerHTML = formAddressOutput;
+        //geoOutput
+        document.getElementById('geometry').innerHTML = geoOutput;
+      })
+      .catch(function(error){
+        console.log(error);
+      });
+    }
+  </script>
+  <!--Map API
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0EHlMw4c1Mo8OvywVPx3PaVvZyZyjgJE&callback=initMap">
+  </script>-->
+  <!--Directions API-->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCwHBCkQScFnDujic_D6AptYhY_UTVcWfY&callback=initMap">
+  </script>
+
+</body>
+</html>
