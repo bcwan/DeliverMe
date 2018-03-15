@@ -79,9 +79,7 @@
           map.setCenter(pos);
 
         }, function() {
-
           handleLocationError(true, infoWindow, map.getCenter());
-
         });
 
       } else {
@@ -92,7 +90,6 @@
     }
 
     //==========================================================================
-    //geocode();
     //get the location from form
     var locate = document.getElementById('location-form');
     locate.addEventListener('submit', geocode);
@@ -110,6 +107,7 @@
       .then(function(response){
         console.log(response);
 
+        /*
         //format address
         var formAddress = response.data.results[0].formatted_address;
         var formAddressOutput = `
@@ -117,16 +115,19 @@
             <li class="list-group-item">${formAddress}</li>
           </ul>
         `;
-
+        */
         //geometry determining lat long by search
         var geoLat = response.data.results[0].geometry.location.lat;
         var geoLng = response.data.results[0].geometry.location.lng;
+        
+        /*
         var geoOutput = `
           <ul class="list-group">
             <li class="list-group-item">Lat: ${geoLat}</li>
             <li class="list-group-item">Lng: ${geoLng}</li>
           </ul>
         `;
+        */
 
         //zoom out and coordinates
         var otherLocation = {
