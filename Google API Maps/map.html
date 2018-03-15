@@ -89,64 +89,6 @@
         handleLocationError(false, infoWindow, map.getCenter());
       }
 
-      //adds markers on click
-      // google.maps.event.addListener(map, 'click',
-      // function(event){
-      //   //add marker
-      //   addMarker({coords:event.latLng});
-      // });
-
-      //marker array
-      /*
-      var markers = [
-        {
-          coords:{lat: 37.7749, lng: -122.4194},
-          iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
-          content: '<h1>My location<h1>'
-        },
-        {
-          coords:{lat: 37.8044, lng: -122.2711}
-        },
-        {
-          coords:{lat: 37.6879, lng: -122.4702}
-        }
-      ];
-
-      //adds markers
-      for(var i = 0; i < markers.length; i++){
-        addMarker(markers[i]);
-      }
-      
-
-      //add marker function
-      function addMarker(props){
-        //marker
-        console.log("Adding marker");
-        var marker = new google.maps.Marker({
-          position:props.coords,
-          map:map
-        });
-
-        if(props.iconImage){
-          //set icon images
-          marker.setIcon(props.iconImage);
-        }
-
-        if(props.content){
-          //info window
-          var infoWindow = new google.maps.InfoWindow({
-            content: props.content
-            }
-          )
-
-          marker.addListener('click', function(){
-            console.log("Goes to listener");
-            infoWindow.open(map, marker);
-          });
-        }
-      }
-      */
-
     }
 
     //==========================================================================
